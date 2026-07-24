@@ -39,25 +39,6 @@
             <label for="idea">Опиши свою идею <span class="required">*</span></label>
             <textarea id="idea" name="idea" rows="4" placeholder="Коротко опиши идею..." required></textarea>
           </div>
-          <div class="field">
-            <label>На какой платформе смотришь? <span class="required">*</span></label>
-            <div class="chip-row" id="video-platform-chips">
-              <label class="chip-radio-label" data-value="twitch">
-                <input type="radio" name="video_platform" value="twitch" class="chip-radio" required>
-                <span class="chip-radio-dot"></span>
-                <span class="chip-radio-text">Twitch</span>
-              </label>
-              <label class="chip-radio-label" data-value="youtube">
-                <input type="radio" name="video_platform" value="youtube" class="chip-radio">
-                <span class="chip-radio-dot"></span>
-                <span class="chip-radio-text">YouTube</span>
-              </label>
-            </div>
-          </div>
-          <div class="field">
-            <label for="video_nickname">Твой ник (без @) <span class="required">*</span></label>
-            <input type="text" id="video_nickname" name="nickname" placeholder="Твой ник" required>
-          </div>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary" id="video-submit">Отправить</button>
           </div>
@@ -85,25 +66,6 @@
           <div class="field">
             <label for="reason">Зачем нужна эта команда? <span class="required">*</span></label>
             <textarea id="reason" name="reason" rows="2" placeholder="Поясни, для чего она..." required></textarea>
-          </div>
-          <div class="field">
-            <label>На какой платформе смотришь? <span class="required">*</span></label>
-            <div class="chip-row" id="suggestion-platform-chips">
-              <label class="chip-radio-label" data-value="twitch">
-                <input type="radio" name="suggestion_platform" value="twitch" class="chip-radio" required>
-                <span class="chip-radio-dot"></span>
-                <span class="chip-radio-text">Twitch</span>
-              </label>
-              <label class="chip-radio-label" data-value="youtube">
-                <input type="radio" name="suggestion_platform" value="youtube" class="chip-radio">
-                <span class="chip-radio-dot"></span>
-                <span class="chip-radio-text">YouTube</span>
-              </label>
-            </div>
-          </div>
-          <div class="field">
-            <label for="suggestion_nickname">Твой ник (без @) <span class="required">*</span></label>
-            <input type="text" id="suggestion_nickname" name="nickname" placeholder="Твой ник" required>
           </div>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary" id="suggestion-submit">Отправить</button>
@@ -149,6 +111,28 @@
     </section>
 
   </main>
+
+  <!-- Модалка "Кто вы?" — при первом заходе -->
+  <div class="modal-overlay" id="intro-modal-overlay">
+    <div class="modal-card">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M4 20c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h2>Привет! Кто ты?</h2>
+      <p>Напиши свой ник и выбери платформу — это нужно, чтобы модераторы знали, кто предложил идею. Данные сохранятся, и в следующий раз спрашивать не будем.</p>
+      <input type="text" id="intro-nickname" maxlength="40" placeholder="Твой ник (без @)" autocomplete="off">
+      <div class="modal-platform-row">
+        <button class="modal-platform-btn" data-platform="twitch" id="intro-platform-twitch">Twitch</button>
+        <button class="modal-platform-btn" data-platform="youtube" id="intro-platform-youtube">YouTube</button>
+      </div>
+      <p class="modal-platform-hint">Выбор платформы влияет на цветовую тему сайта.</p>
+      <button class="modal-submit" id="intro-submit">Готово</button>
+      <p class="tfa-status" id="intro-error"></p>
+    </div>
+  </div>
 
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
