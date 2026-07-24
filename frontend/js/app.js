@@ -91,18 +91,28 @@
         const badge = document.createElement('div');
         badge.className = 'user-badge';
         badge.innerHTML = `
-            <span class="user-badge-label">Вы:</span>
-            <span class="user-badge-name">${escapeHtml(nickname)}</span>
-            <span class="user-badge-platform ${platform}">${platform}</span>
-            <button class="user-badge-change" id="user-badge-change-btn">Сменить</button>
+            <button class="user-badge-change" id="user-badge-change-btn">Сменить ник / платформу</button>
+            <div class="user-badge-row">
+              <span class="user-badge-label">Вы:</span>
+              <span class="user-badge-name">${escapeHtml(nickname)}</span>
+              <span class="user-badge-platform ${platform}">${platform}</span>
+            </div>
         `;
         sidebarFooter.insertBefore(badge, sidebarFooter.firstChild);
 
         document.getElementById('user-badge-change-btn').addEventListener('click', function() {
-            localStorage.removeItem(LS_KEY);
-            selectedPlatform = '';
-            document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(b => b.classList.remove('selected'));
-            introNickname.value = '';
+            const current = getUserData();
+            if (current) {
+                introNickname.value = current.nickname || '';
+                selectedPlatform = current.platform || '';
+                document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(b => {
+                    b.classList.toggle('selected', b.dataset.platform === selectedPlatform);
+                });
+            } else {
+                introNickname.value = '';
+                selectedPlatform = '';
+                document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(b => b.classList.remove('selected'));
+            }
             introError.textContent = '';
             showIntroModal();
         });
