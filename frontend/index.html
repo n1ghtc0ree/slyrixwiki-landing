@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLYRIX Viewer — предложения</title>
+<link rel="preconnect" href="https://googleapis.com">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640'><path fill='%234a9eff' d='M96 160C149 160 192 203 192 256L192 341.8C221.7 297.1 269.8 265.6 325.4 257.8C351 317.8 410.6 359.9 480 359.9C490.9 359.9 501.6 358.8 512 356.8L512 544C512 561.7 497.7 576 480 576C462.3 576 448 561.7 448 544L448 403.2L312 512L368 512C385.7 512 400 526.3 400 544C400 561.7 385.7 576 368 576L224 576C171 576 128 533 128 480L128 256C128 239.4 115.4 225.8 99.3 224.2L92.7 223.9C76.6 222.2 64 208.6 64 192C64 174.3 78.3 160 96 160zM565.8 67.2C576.2 58.5 592 65.9 592 79.5L592 192C592 253.9 541.9 304 480 304C418.1 304 368 253.9 368 192L368 79.5C368 65.9 383.8 58.5 394.2 67.2L448 112L512 112L565.8 67.2zM432 172C421 172 412 181 412 192C412 203 421 212 432 212C443 212 452 203 452 192C452 181 443 172 432 172zM528 172C517 172 508 181 508 192C508 203 517 212 528 212C539 212 548 203 548 192C548 181 539 172 528 172z'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand"><span>Slyrix_Viewer</span></div>
+    <div class="brand-sub">предложка</div>
+    <nav>
+      <span class="nav-indicator" aria-hidden="true"></span>
+      <button class="nav-item active" data-target="videos"><span class="dot"></span>Видео</button>
+      <button class="nav-item" data-target="commands"><span class="dot"></span>Команды</button>
+      <button class="nav-item" data-target="about"><span class="dot"></span>О сайте</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-note">предложения попадают напрямую к модераторам</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ВКЛАДКА: Видео -->
+    <section class="section active" id="videos">
+      <div class="path"><span class="accent">ВИДЕО</span></div>
+      <h1>Предложить идею для видео</h1>
+      <p class="lead">Что бы ты хотел увидеть на канале? Пиши, не стесняйся :)</p>
+
+      <div class="landing-card">
+        <form id="video-form" autocomplete="off">
+          <div class="field">
+            <label for="idea">Опиши свою идею <span class="required">*</span></label>
+            <textarea id="idea" name="idea" rows="4" placeholder="Коротко опиши идею..." required></textarea>
+          </div>
+          <div class="field">
+            <label>На какой платформе смотришь? <span class="required">*</span></label>
+            <div class="chip-row" id="video-platform-chips">
+              <label class="chip-radio-label" data-value="twitch">
+                <input type="radio" name="video_platform" value="twitch" class="chip-radio" required>
+                <span class="chip-radio-dot"></span>
+                <span class="chip-radio-text">Twitch</span>
+              </label>
+              <label class="chip-radio-label" data-value="youtube">
+                <input type="radio" name="video_platform" value="youtube" class="chip-radio">
+                <span class="chip-radio-dot"></span>
+                <span class="chip-radio-text">YouTube</span>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="video_nickname">Твой ник (без @) <span class="required">*</span></label>
+            <input type="text" id="video_nickname" name="nickname" placeholder="Твой ник" required>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="video-submit">Отправить</button>
+          </div>
+          <div class="form-status" id="video-status"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ВКЛАДКА: Команды -->
+    <section class="section" id="commands">
+      <div class="path"><span class="accent">КОМАНДЫ</span></div>
+      <h1>Предложить команду nightbot</h1>
+      <p class="lead">Придумай новую кастомную команду для чата. Опиши триггер и ответ бота.</p>
+
+      <div class="landing-card">
+        <form id="suggestion-form" autocomplete="off">
+          <div class="field">
+            <label for="command_name">Название команды (!) <span class="required">*</span></label>
+            <input type="text" id="command_name" name="command_name" placeholder="!команда" required>
+          </div>
+          <div class="field">
+            <label for="bot_response">Что должен отвечать бот? <span class="required">*</span></label>
+            <textarea id="bot_response" name="bot_response" rows="3" placeholder="Текст ответа бота..." required></textarea>
+          </div>
+          <div class="field">
+            <label for="reason">Зачем нужна эта команда? <span class="required">*</span></label>
+            <textarea id="reason" name="reason" rows="2" placeholder="Поясни, для чего она..." required></textarea>
+          </div>
+          <div class="field">
+            <label>На какой платформе смотришь? <span class="required">*</span></label>
+            <div class="chip-row" id="suggestion-platform-chips">
+              <label class="chip-radio-label" data-value="twitch">
+                <input type="radio" name="suggestion_platform" value="twitch" class="chip-radio" required>
+                <span class="chip-radio-dot"></span>
+                <span class="chip-radio-text">Twitch</span>
+              </label>
+              <label class="chip-radio-label" data-value="youtube">
+                <input type="radio" name="suggestion_platform" value="youtube" class="chip-radio">
+                <span class="chip-radio-dot"></span>
+                <span class="chip-radio-text">YouTube</span>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="suggestion_nickname">Твой ник (без @) <span class="required">*</span></label>
+            <input type="text" id="suggestion_nickname" name="nickname" placeholder="Твой ник" required>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="suggestion-submit">Отправить</button>
+          </div>
+          <div class="form-status" id="suggestion-status"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ВКЛАДКА: О сайте -->
+    <section class="section" id="about">
+      <div class="path"><span class="accent">ИНФО</span></div>
+      <div class="about-header">
+        <h1>Slyrix_Viewer</h1>
+        <p class="about-subtitle">Предложения для канала SLYRIX</p>
+      </div>
+      <div class="about-desc">
+        <p>Здесь ты можешь предложить свою идею для нового видео или кастомную команду для nightbot'а на канале SLYRIX. Все предложения попадают напрямую к модераторам и рассматриваются в ближайшее время.</p>
+      </div>
+      <div class="about-sections">
+        <a class="about-link" data-target="videos">
+          <span class="about-link-icon"></span>
+          <div>
+            <strong>Идеи для видео</strong>
+            <p>Предложи концепцию, формат или тему для будущего видео.</p>
+          </div>
+        </a>
+        <a class="about-link" data-target="commands">
+          <span class="about-link-icon"></span>
+          <div>
+            <strong>Команды nightbot</strong>
+            <p>Придумай новую команду для чата — триггер и ответ бота.</p>
+          </div>
+        </a>
+        <a class="about-link" href="https://t.me/SLYRIX8" target="_blank" rel="noopener">
+          <span class="about-link-icon"></span>
+          <div>
+            <strong>Телеграм-канал</strong>
+            <p>Следи за новостями канала — анонсы и обновления.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
