@@ -177,7 +177,7 @@ body{
   color:var(--text);
   transition:transform 0.15s ease, background 0.2s ease;
 }
-.lg-btn:hover{ background:rgba(255,255,255,0.12); }
+.lg-btn:not(.lg-btn-primary):hover{ background:rgba(255,255,255,0.12); }
 .lg-btn:active{ transform:scale(0.96); }
 .lg-btn-primary{
   background:linear-gradient(135deg, var(--accent), #d9a0cf);
