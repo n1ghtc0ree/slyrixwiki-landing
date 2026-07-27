@@ -153,8 +153,10 @@ body{
 .lg-content p{ color:var(--muted); font-size:14px; line-height:1.55; margin-bottom:26px; }
 .lg-content input{
   width:100%;
-  background:var(--bg);
-  border:1px solid var(--border);
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
   border-radius:var(--radius-sm);
   padding:11px 14px;
   color:var(--text);
@@ -162,7 +164,7 @@ body{
   font-size:14px;
   margin-bottom:14px;
   outline:none;
-  transition:border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 .lg-content input:focus{
   border-color:var(--accent);
@@ -413,6 +415,7 @@ h1{
   border-radius:var(--radius-md);
   padding:28px 26px;
   max-width:560px;
+  overflow:visible;
 }
 .field{
   margin-bottom:18px;
@@ -428,21 +431,27 @@ h1{
 .field .required{color:var(--accent);}
 .field input, .field textarea{
   width:100%;
-  background:var(--bg);
-  border:1px solid var(--border);
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
   border-radius:var(--radius-sm);
   padding:11px 14px;
   color:var(--text);
   font-family:'Plus Jakarta Sans', sans-serif;
   font-size:14px;
   outline:none;
-  transition:border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   resize:vertical;
 }
 /* Отступ для resize-уголка — не прилипает к краю */
 .field textarea{
-  padding-bottom:15px;
-  padding-right:18px;
+  padding:11px 14px;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border-bottom-right-radius:4px;
 }
 .field input:focus, .field textarea:focus{
   border-color:var(--accent);
@@ -687,7 +696,7 @@ h1{
 /* Fix textarea resize — не режет скругление */
 .field textarea{
   border-radius:var(--radius-sm);
-  border-bottom-right-radius:4px;
+  border-bottom-right-radius:0;
 }
 
 /* TFA status (для ошибок в модалке) */
@@ -709,6 +718,8 @@ h1{
   .main{margin-left:0; padding:32px 0 100px;}
   .section{max-width:100%; padding:24px 16px 100px;}
   .about-sections{grid-template-columns:1fr;}
+  .landing-card{padding:20px 16px;}
+  .field textarea{resize:none; height:100px; overflow-y:auto; border-bottom-right-radius:var(--radius-sm);}
 
   .mobile-dock-wrap{
     display:block;
