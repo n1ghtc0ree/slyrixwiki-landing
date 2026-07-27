@@ -19,13 +19,6 @@
         localStorage.setItem(LS_KEY, JSON.stringify({ nickname, platform }));
     }
 
-    function applyPlatformTheme(platform) {
-        document.body.classList.remove('platform-twitch', 'platform-youtube');
-        if (platform) {
-            document.body.classList.add('platform-' + platform);
-        }
-    }
-
     // ── Модалка "Кто ты?" ────────────────────────────────────────────
     const modalOverlay = document.getElementById('intro-modal-overlay');
     const introNickname = document.getElementById('intro-nickname');
@@ -33,10 +26,9 @@
     const introSubmit = document.getElementById('intro-submit');
     let selectedPlatform = '';
 
-    // Кнопки выбора платформы в модалке
-    document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(btn => {
+    document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(function(b) { b.classList.remove('selected'); });
             this.classList.add('selected');
             selectedPlatform = this.dataset.platform;
         });
@@ -50,6 +42,8 @@
     function hideIntroModal() {
         modalOverlay.classList.remove('open');
     }
+
+    window.closeIntroModal = hideIntroModal;
 
     introSubmit.addEventListener('click', function() {
         const nickname = introNickname.value.trim();
@@ -67,12 +61,10 @@
         introError.className = 'tfa-status';
 
         saveUserData(nickname, selectedPlatform);
-        applyPlatformTheme(selectedPlatform);
-        updateUserBadge(nickname, selectedPlatform);
+        updateProfile(nickname, selectedPlatform);
         hideIntroModal();
     });
 
-    // Enter в поле ника
     introNickname.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -80,110 +72,227 @@
         }
     });
 
-    // ── Бейдж пользователя в подвале сайдбара ────────────────────────
-    const sidebarFooter = document.querySelector('.sidebar-footer');
+    // ── Профиль ──────────────────────────────────────────────────────
+    const profileNickname = document.getElementById('profile-nickname');
+    const profileBadge = document.getElementById('profile-platform-badge');
+    const profileChangeBtn = document.getElementById('profile-change-btn');
+    const badgeName = document.getElementById('user-badge-name');
+    const badgeChangeBtn = document.getElementById('user-badge-change-btn');
 
-    function updateUserBadge(nickname, platform) {
-        // Удаляем старый бейдж, если есть
-        const oldBadge = document.querySelector('.user-badge');
-        if (oldBadge) oldBadge.remove();
+    function platformBadgeHtml(platform) {
+        if (!platform) return '';
+        var icon = platform === 'twitch'
+            ? '<svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M4 3h16v11l-4 4h-4l-3 3v-3H4z"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M10 8l8 4-8 4z"/><rect x="2" y="4" width="20" height="16" rx="3"/></svg>';
+        return '<span class="platform-badge">' + icon + platform + '</span>';
+    }
 
-        const badge = document.createElement('div');
-        badge.className = 'user-badge';
-        badge.innerHTML = `
-            <button class="user-badge-change" id="user-badge-change-btn">Сменить ник / платформу</button>
-            <div class="user-badge-row">
-              <span class="user-badge-label">Вы:</span>
-              <span class="user-badge-name">${escapeHtml(nickname)}</span>
-              <span class="user-badge-platform ${platform}">${platform}</span>
-            </div>
-        `;
-        sidebarFooter.insertBefore(badge, sidebarFooter.firstChild);
+    function updateProfile(nickname, platform) {
+        profileNickname.textContent = nickname || '—';
+        profileBadge.innerHTML = platformBadgeHtml(platform);
+        badgeName.textContent = nickname || '—';
+    }
 
-        document.getElementById('user-badge-change-btn').addEventListener('click', function() {
-            const current = getUserData();
-            if (current) {
-                introNickname.value = current.nickname || '';
-                selectedPlatform = current.platform || '';
-                document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(b => {
-                    b.classList.toggle('selected', b.dataset.platform === selectedPlatform);
-                });
-            } else {
-                introNickname.value = '';
-                selectedPlatform = '';
-                document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(b => b.classList.remove('selected'));
-            }
-            introError.textContent = '';
-            showIntroModal();
+    function openChangeModal() {
+        const current = getUserData();
+        introNickname.value = current ? current.nickname || '' : '';
+        selectedPlatform = current ? current.platform || '' : '';
+        document.querySelectorAll('#intro-modal-overlay .modal-platform-btn').forEach(function(b) {
+            b.classList.toggle('selected', b.dataset.platform === selectedPlatform);
         });
+        introError.textContent = '';
+        showIntroModal();
     }
 
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+    profileChangeBtn.addEventListener('click', openChangeModal);
+    badgeChangeBtn.addEventListener('click', openChangeModal);
 
     // ── Инициализация ────────────────────────────────────────────────
     const userData = getUserData();
     if (userData && userData.nickname && userData.platform) {
-        applyPlatformTheme(userData.platform);
-        updateUserBadge(userData.nickname, userData.platform);
+        updateProfile(userData.nickname, userData.platform);
     } else {
         showIntroModal();
     }
 
-    // ── Навигация по вкладкам ────────────────────────────────────────
-    const nav = document.querySelector('nav');
-    const navItems = nav.querySelectorAll('.nav-item');
+    // ── Слайд-навигация (как в nav.js) ──────────────────────────────
+    const items = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.section');
-    const indicator = nav.querySelector('.nav-indicator');
-    let activeItem = nav.querySelector('.nav-item.active');
+    const itemsOrder = Array.from(items);
+    const navEl = document.querySelector('nav');
+    const navIndicator = document.querySelector('.nav-indicator');
 
-    function updateIndicator(el) {
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const navRect = nav.getBoundingClientRect();
-        indicator.style.width = rect.width + 'px';
-        indicator.style.height = rect.height + 'px';
-        indicator.style.transform = `translate(${rect.left - navRect.left}px, ${rect.top - navRect.top}px)`;
+    function setSectionInstant(el, pct) {
+        el.style.transition = 'none';
+        el.style.transform = 'translateY(' + pct + '%) translateZ(0)';
+        void el.offsetHeight;
+        el.style.transition = '';
     }
 
-    function switchTab(targetId) {
-        sections.forEach(s => s.classList.remove('active'));
-        const targetSection = document.getElementById(targetId);
-        if (targetSection) targetSection.classList.add('active');
+    function activateSection(oldSection, newSection, direction) {
+        if (newSection === oldSection) return;
 
-        navItems.forEach(item => item.classList.remove('active'));
-        const newActive = Array.from(navItems).find(item => item.dataset.target === targetId);
-        if (newActive) {
-            newActive.classList.add('active');
-            activeItem = newActive;
-            updateIndicator(newActive);
+        if (direction === 0) {
+            if (oldSection && oldSection !== newSection) {
+                oldSection.classList.remove('active');
+                oldSection.inert = true;
+                setSectionInstant(oldSection, 100);
+            }
+            if (newSection) {
+                setSectionInstant(newSection, 0);
+                newSection.classList.add('active');
+                newSection.inert = false;
+            }
+            return;
+        }
+
+        if (newSection) {
+            setSectionInstant(newSection, direction * 100);
+            newSection.inert = false;
+        }
+
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                if (newSection) {
+                    newSection.classList.add('active');
+                    newSection.style.transform = 'translateY(0)';
+                }
+                if (oldSection) {
+                    oldSection.classList.remove('active');
+                    oldSection.style.transform = 'translateY(' + (direction * -100) + '%)';
+                    oldSection.inert = true;
+                }
+            });
+        });
+    }
+
+    function moveNavIndicator(target, instant) {
+        if (!navEl || !navIndicator || !target) return;
+        var navRect = navEl.getBoundingClientRect();
+        var itemRect = target.getBoundingClientRect();
+        var apply = function() {
+            navIndicator.style.width = itemRect.width + 'px';
+            navIndicator.style.height = itemRect.height + 'px';
+            navIndicator.style.transform = 'translate(' + (itemRect.left - navRect.left) + 'px, ' + (itemRect.top - navRect.top) + 'px)';
+        };
+        if (instant) {
+            navIndicator.style.transitionProperty = 'none';
+            apply();
+            navIndicator.offsetHeight;
+            navIndicator.style.transitionProperty = '';
+        } else {
+            apply();
         }
     }
 
-    navItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const target = this.dataset.target;
-            if (target) switchTab(target);
+    moveNavIndicator(document.querySelector('.nav-item.active'), true);
+
+    items.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var oldBtn = document.querySelector('.nav-item.active');
+            var oldIndex = oldBtn ? itemsOrder.indexOf(oldBtn) : -1;
+            var newIndex = itemsOrder.indexOf(btn);
+            var direction = (oldIndex === -1 || oldIndex === newIndex) ? 0 : (newIndex > oldIndex ? 1 : -1);
+
+            items.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            moveNavIndicator(btn, false);
+
+            var oldSection = document.querySelector('.section.active');
+            var target = document.getElementById(btn.dataset.target);
+            activateSection(oldSection, target, direction);
+            target.scrollTop = 0;
         });
     });
 
-    document.querySelectorAll('.about-link[data-target]').forEach(link => {
+    document.querySelectorAll('.about-link[data-target]').forEach(function(link) {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            const target = this.dataset.target;
+            var target = this.dataset.target;
             if (target) {
-                switchTab(target);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                var btn = document.querySelector('.nav-item[data-target="' + target + '"]');
+                if (btn) btn.click();
             }
         });
     });
 
-    if (activeItem) {
-        setTimeout(() => updateIndicator(activeItem), 50);
+    // ── Докбар для мобилок ──────────────────────────────────────────
+    function renderDock() {
+        var dock = document.getElementById('mobile-dock');
+        if (!dock) return;
+
+        var activeBtn = document.querySelector('.nav-item.active');
+        var activeId = activeBtn ? activeBtn.dataset.target : 'videos';
+
+        var dockItems = [
+            { id: 'videos', label: 'Видео', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 10.5 21 7v10l-6-3.5"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>' },
+            { id: 'commands', label: 'Команды', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v14H4z"/><path d="M8 9l3 3-3 3M13 15h4"/></svg>' },
+            { id: 'profile', label: 'Профиль', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>' },
+            { id: 'about', label: 'О сайте', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>' },
+        ];
+
+        var indicator = dock.querySelector('.dock-indicator');
+        var html = '';
+        dockItems.forEach(function(item) {
+            var isActive = item.id === activeId;
+            html += '<button class="dock-item' + (isActive ? ' active' : '') + '" data-target="' + item.id + '">' +
+                '<span class="dock-icon">' + item.icon + '</span>' +
+                '<span class="dock-label">' + item.label + '</span>' +
+                '</button>';
+        });
+
+        dock.innerHTML = html;
+
+        if (!indicator) {
+            indicator = document.createElement('span');
+            indicator.className = 'dock-indicator';
+            indicator.setAttribute('aria-hidden', 'true');
+        }
+        dock.insertBefore(indicator, dock.firstChild);
+
+        requestAnimationFrame(function() { moveDockIndicator(); });
     }
+
+    function moveDockIndicator() {
+        var dock = document.getElementById('mobile-dock');
+        var indicator = document.querySelector('.dock-indicator');
+        if (!dock || !indicator) return;
+
+        var activeBtn = dock.querySelector('.dock-item.active');
+        if (!activeBtn) {
+            indicator.style.display = 'none';
+            return;
+        }
+
+        indicator.style.display = 'block';
+        var dockRect = dock.getBoundingClientRect();
+        var btnRect = activeBtn.getBoundingClientRect();
+        indicator.style.width = btnRect.width + 'px';
+        indicator.style.height = btnRect.height + 'px';
+        indicator.style.transform = 'translate(' + (btnRect.left - dockRect.left) + 'px, ' + (btnRect.top - dockRect.top) + 'px)';
+    }
+
+    function handleDockClick(e) {
+        var dockBtn = e.target.closest('.dock-item');
+        if (!dockBtn) return;
+        var target = dockBtn.dataset.target;
+        if (target) {
+            var btn = document.querySelector('.nav-item[data-target="' + target + '"]');
+            if (btn) btn.click();
+        }
+    }
+
+    var dockWrap = document.getElementById('mobile-dock-wrap');
+    if (dockWrap) {
+        dockWrap.addEventListener('click', handleDockClick);
+    }
+
+    var navObserver = new MutationObserver(function() { renderDock(); });
+    document.querySelectorAll('.nav-item').forEach(function(el) {
+        navObserver.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+    });
+
+    renderDock();
 
     // ── Утилита: отправка формы ──────────────────────────────────────
     async function submitForm(url, data, statusEl, submitBtn) {
@@ -202,12 +311,12 @@
             if (resp.ok) {
                 const result = await resp.json();
                 statusEl.className = 'form-status success';
-                statusEl.textContent = `✓ Отправлено! ID: ${result.id}`;
+                statusEl.textContent = '✓ Отправлено! ID: ' + result.id;
             } else {
                 const err = await resp.json();
                 const msg = err.detail?.error || err.detail || 'Ошибка сервера';
                 statusEl.className = 'form-status error';
-                statusEl.textContent = `✗ ${msg}`;
+                statusEl.textContent = '✗ ' + msg;
             }
         } catch (e) {
             statusEl.className = 'form-status error';
